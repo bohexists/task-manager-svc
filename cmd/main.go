@@ -9,5 +9,9 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 	db.ConnectToDB(cfg)
-	grpc.StartGRPCServer()
+
+	taskRepo := db.NewTaskRepository(db.DB)
+	taskService := grpc.NewTaskService(taskRepo)
+
+	grpc.StartGRPCServer(taskService)
 }

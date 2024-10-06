@@ -13,7 +13,7 @@ type server struct {
 	pb.UnimplementedTaskServiceServer
 }
 
-func StartGRPCServer() {
+func StartGRPCServer(repo *TaskService) {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
