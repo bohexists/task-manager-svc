@@ -18,4 +18,5 @@ func main() {
 
 	grpcServiceServer := grpc.NewTaskServiceServer(taskService)
 	grpc.StartGRPCServer(grpcServiceServer)
+
 }

@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"github.com/bohexists/task-manager-svc/api/proto"
+	"github.com/bohexists/task-manager-svc/domain"
 	"github.com/bohexists/task-manager-svc/ports/outbound"
 )
 
@@ -16,44 +16,37 @@ func NewTaskService(repo outbound.TaskRepository) *TaskService {
 	}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, req *proto.Task) (*proto.TaskID, error) {
-	taskID, err := s.TaskRepo.CreateTask(req)
+func (s *TaskService) CreateTask(ctx context.Context, title, description string) (int64, error) {
+	// Используем бизнес-логику домена
+	task, err := domain.NewTask(title, description)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	return &proto.TaskID{Id: taskID}, nil
+	return s.TaskRepo.CreateTask(task)
 }
 
-func (s *TaskService) GetTask(ctx context.Context, req *proto.TaskID) (*proto.Task, error) {
-	return s.TaskRepo.GetTask(req.Id)
+func (s *TaskService) GetTask(ctx context.Context, id int64) (*domain.Task, error) {
+	return s.TaskRepo.GetTask(id)
 }
 
-func (s *TaskService) UpdateTask(ctx context.Context, req *proto.Task) (*proto.Empty, error) {
-	err := s.TaskRepo.UpdateTask(req)
-	if err != nil {
-		return nil, err
-	}
-	return &proto.Empty{}, nil
-}
-
-func (s *TaskService) DeleteTask(ctx context.Context, req *proto.TaskID) (*proto.Empty, error) {
-	err := s.TaskRepo.DeleteTask(req.Id)
-	if err != nil {
-		return nil, err
-	}
-	return &proto.Empty{}, nil
-}
-
-func (s *TaskService) ListTasks(ctx context.Context, req *proto.Empty, stream proto.TaskService_ListTasksServer) error {
-	tasks, err := s.TaskRepo.ListTasks()
+func (s *TaskService) UpdateTask(ctx context.Context, id int64, title, description string) error {
+	task, err := s.TaskRepo.GetTask(id)
 	if err != nil {
 		return err
 	}
 
-	for _, task := range tasks {
-		if err := stream.Send(task); err != nil {
-			return err
-		}
+	// Обновляем задачу через бизнес-логику домена
+	if err := task.Update(title, description); err != nil {
+		return err
 	}
-	return nil
+
+	return s.TaskRepo.UpdateTask(task)
+}
+
+func (s *TaskService) DeleteTask(ctx context.Context, id int64) error {
+	return s.TaskRepo.DeleteTask(id)
+}
+
+func (s *TaskService) ListTasks(ctx context.Context) ([]*domain.Task, error) {
+	return s.TaskRepo.ListTasks()
 }
