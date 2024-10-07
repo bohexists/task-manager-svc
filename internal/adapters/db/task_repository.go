@@ -2,18 +2,19 @@ package db
 
 import (
 	"database/sql"
-	"github.com/bohexists/task-manager-svc/api/proto"
+	"github.com/bohexists/task-manager-svc/domain"
+	"github.com/bohexists/task-manager-svc/ports/outbound"
 )
 
 type TaskRepository struct {
 	DB *sql.DB
 }
 
-func NewTaskRepository(db *sql.DB) *TaskRepository {
+func NewTaskRepository(db *sql.DB) outbound.TaskRepository {
 	return &TaskRepository{DB: db}
 }
 
-func (r *TaskRepository) CreateTask(task *proto.Task) (int64, error) {
+func (r *TaskRepository) CreateTask(task *domain.Task) (int64, error) {
 	result, err := r.DB.Exec("INSERT INTO tasks (title, description) VALUES (?, ?)", task.Title, task.Description)
 	if err != nil {
 		return 0, err
@@ -25,17 +26,17 @@ func (r *TaskRepository) CreateTask(task *proto.Task) (int64, error) {
 	return taskID, nil
 }
 
-func (r *TaskRepository) GetTask(id int64) (*proto.Task, error) {
-	var task proto.Task
-	err := r.DB.QueryRow("SELECT id, title, description FROM tasks WHERE id = ?", id).Scan(&task.Id, &task.Title, &task.Description)
+func (r *TaskRepository) GetTask(id int64) (*domain.Task, error) {
+	var task domain.Task
+	err := r.DB.QueryRow("SELECT id, title, description FROM tasks WHERE id = ?", id).Scan(&task.ID, &task.Title, &task.Description)
 	if err != nil {
 		return nil, err
 	}
 	return &task, nil
 }
 
-func (r *TaskRepository) UpdateTask(task *proto.Task) error {
-	_, err := r.DB.Exec("UPDATE tasks SET title = ?, description = ? WHERE id = ?", task.Title, task.Description, task.Id)
+func (r *TaskRepository) UpdateTask(task *domain.Task) error {
+	_, err := r.DB.Exec("UPDATE tasks SET title = ?, description = ? WHERE id = ?", task.Title, task.Description, task.ID)
 	return err
 }
 
@@ -44,17 +45,17 @@ func (r *TaskRepository) DeleteTask(id int64) error {
 	return err
 }
 
-func (r *TaskRepository) ListTasks() ([]*proto.Task, error) {
+func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
 	rows, err := r.DB.Query("SELECT id, title, description FROM tasks")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tasks []*proto.Task
+	var tasks []*domain.Task
 	for rows.Next() {
-		var task proto.Task
-		if err := rows.Scan(&task.Id, &task.Title, &task.Description); err != nil {
+		var task domain.Task
+		if err := rows.Scan(&task.ID, &task.Title, &task.Description); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, &task)
