@@ -3,13 +3,14 @@ package db
 import (
 	"database/sql"
 	"github.com/bohexists/task-manager-svc/api/proto"
+	"github.com/bohexists/task-manager-svc/ports/outbound"
 )
 
 type TaskRepository struct {
 	DB *sql.DB
 }
 
-func NewTaskRepository(db *sql.DB) *TaskRepository {
+func NewTaskRepository(db *sql.DB) outbound.TaskRepository {
 	return &TaskRepository{DB: db}
 }
 
