@@ -4,18 +4,22 @@ package proto;
 
 option go_package = "github.com/bohexists/task-manager-svc/api/proto;proto";
 
+// This is an example of a message
 message Task {
   int64 id = 1;
   string title = 2;
   string description = 3;
 }
 
+// This is an example of a message
 message TaskID {
   int64 id = 1;
 }
 
+// This is an example of an empty message
 message Empty {}
 
+// This is an example of a service
 service TaskService {
   rpc CreateTask (Task) returns (TaskID);
   rpc GetTask (TaskID) returns (Task);

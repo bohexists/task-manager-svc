@@ -8,7 +8,7 @@ type Task struct {
 	Description string
 }
 
-// Метод для создания новой задачи
+// NewTask creates a new task
 func NewTask(title, description string) (*Task, error) {
 	if title == "" {
 		return nil, errors.New("title cannot be empty")
@@ -20,7 +20,7 @@ func NewTask(title, description string) (*Task, error) {
 	}, nil
 }
 
-// Метод для обновления задачи
+// Update updates a task
 func (t *Task) Update(title, description string) error {
 	if title == "" {
 		return errors.New("title cannot be empty")
