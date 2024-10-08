@@ -6,14 +6,17 @@ import (
 	"github.com/bohexists/task-manager-svc/ports/outbound"
 )
 
+// TaskRepository implements TaskRepository interface now works with domain.Task instead of proto.Task
 type TaskRepository struct {
 	DB *sql.DB
 }
 
+// NewTaskRepository creates a new TaskRepository
 func NewTaskRepository(db *sql.DB) outbound.TaskRepository {
 	return &TaskRepository{DB: db}
 }
 
+// TaskRepository interface now works with domain.Task instead of proto.Task
 func (r *TaskRepository) CreateTask(task *domain.Task) (int64, error) {
 	result, err := r.DB.Exec("INSERT INTO tasks (title, description) VALUES (?, ?)", task.Title, task.Description)
 	if err != nil {
@@ -26,6 +29,7 @@ func (r *TaskRepository) CreateTask(task *domain.Task) (int64, error) {
 	return taskID, nil
 }
 
+// TaskRepository interface now works with domain.Task instead of proto.Task
 func (r *TaskRepository) GetTask(id int64) (*domain.Task, error) {
 	var task domain.Task
 	err := r.DB.QueryRow("SELECT id, title, description FROM tasks WHERE id = ?", id).Scan(&task.ID, &task.Title, &task.Description)
@@ -35,16 +39,19 @@ func (r *TaskRepository) GetTask(id int64) (*domain.Task, error) {
 	return &task, nil
 }
 
+// TaskRepository interface now works with domain.Task instead of proto.Task
 func (r *TaskRepository) UpdateTask(task *domain.Task) error {
 	_, err := r.DB.Exec("UPDATE tasks SET title = ?, description = ? WHERE id = ?", task.Title, task.Description, task.ID)
 	return err
 }
 
+// TaskRepository interface now works with domain.Task instead of proto.Task
 func (r *TaskRepository) DeleteTask(id int64) error {
 	_, err := r.DB.Exec("DELETE FROM tasks WHERE id = ?", id)
 	return err
 }
 
+// TaskRepository interface now works with domain.Task instead of proto.Task
 func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
 	rows, err := r.DB.Query("SELECT id, title, description FROM tasks")
 	if err != nil {

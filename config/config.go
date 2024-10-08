@@ -4,6 +4,7 @@ import (
 	"os"
 )
 
+// LoadConfig loads environment variables from Docker environment
 type Config struct {
 	DBHost     string
 	DBPort     string
@@ -12,6 +13,7 @@ type Config struct {
 	DBName     string
 }
 
+// LoadConfig loads environment variables from Docker environment
 func LoadConfig() Config {
 	return Config{
 		DBHost:     os.Getenv("DB_HOST"),

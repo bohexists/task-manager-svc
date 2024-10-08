@@ -9,10 +9,12 @@ import (
 	pb "github.com/bohexists/task-manager-svc/api/proto"
 )
 
-type server struct {
+// TaskService implements pb.TaskServiceServer
+type TaskService struct {
 	pb.UnimplementedTaskServiceServer
 }
 
+// StartGRPCServer starts gRPC server
 func StartGRPCServer(repo *TaskService) {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
