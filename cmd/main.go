@@ -19,7 +19,6 @@ func main() {
 	taskRepo := db.NewTaskRepository(db.DB)
 	// Initialize service
 	taskService := app.NewTaskService(taskRepo)
-
 	// Initialize grpc server
 	grpcServiceServer := inbound.NewTaskServiceServer(taskService)
 	// Start grpc server
