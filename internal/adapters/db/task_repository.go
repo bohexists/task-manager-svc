@@ -69,3 +69,9 @@ func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
 	}
 	return tasks, nil
 }
+
+// TaskRepository interface now works with domain.Task instead of proto.Task
+func (r *TaskRepository) UpdateTaskStatus(id int64, status string) error {
+	_, err := r.DB.Exec("UPDATE tasks SET status = ? WHERE id = ?", status, id)
+	return err
+}

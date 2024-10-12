@@ -11,4 +11,5 @@ type TaskRepository interface {
 	UpdateTask(task *domain.Task) error
 	DeleteTask(id int64) error
 	ListTasks() ([]*domain.Task, error)
+	UpdateTaskStatus(id int64, status string) error
 }
