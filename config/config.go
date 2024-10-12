@@ -11,6 +11,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	NatsURL    string
 }
 
 // LoadConfig loads environment variables from Docker environment
@@ -21,5 +22,6 @@ func LoadConfig() Config {
 		DBUser:     os.Getenv("DB_USER"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
+		NatsURL:    os.Getenv("NATS_URL"),
 	}
 }
