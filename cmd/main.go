@@ -6,7 +6,10 @@ import (
 	"github.com/bohexists/task-manager-svc/internal/adapters/db"
 	"github.com/bohexists/task-manager-svc/internal/adapters/grpc"
 	"github.com/bohexists/task-manager-svc/internal/adapters/nats"
+	shutdown "github.com/bohexists/task-manager-svc/internal/system"
 	"github.com/bohexists/task-manager-svc/ports/inbound"
+	"log"
+	"time"
 )
 
 func main() {
@@ -16,19 +19,23 @@ func main() {
 	// Connect to database
 	db.ConnectToDB(cfg)
 
-	// Initialize repository, service, and handler
+	// Initialize repository and service
 	taskRepo := db.NewTaskRepository(db.DB)
-	// Initialize service
 	taskService := app.NewTaskService(taskRepo)
-	// Initialize grpc server
-	grpcServiceServer := inbound.NewTaskServiceServer(taskService)
-	// Start grpc server
-	grpc.StartGRPCServer(grpcServiceServer)
 
-	// Initialize nats subscriber
-	nats.InitNATSSubscriber(cfg, taskRepo)
+	// Start gRPC server and get its instance for shutdown
+	grpcServerInstance := grpc.StartGRPCServer(inbound.NewTaskServiceServer(taskService))
 
-	// Keep the program running
-	select {}
+	// Start NATS subscriber and get its connection for shutdown
+	natsConn, err := nats.InitNATSSubscriber(cfg, taskRepo)
+	if err != nil {
+		log.Fatalf("Failed to connect to NATS: %v", err)
+	}
 
+	// Listen for shutdown signal and gracefully shutdown gRPC and NATS
+	shutdown.ListenForShutdown(shutdown.ShutdownConfig{
+		GrpcServer:      grpcServerInstance,
+		NATSConnection:  natsConn,
+		ShutdownTimeout: 5 * time.Second,
+	})
 }

@@ -16,12 +16,37 @@ type TaskStatusUpdate struct {
 }
 
 // InitNATSSubscriber initializes NATS subscriber
-func InitNATSSubscriber(cfg config.Config, repo outbound.TaskRepository) {
-	err := SubscribeToTaskStatusUpdates(cfg, repo)
+func InitNATSSubscriber(cfg config.Config, repo outbound.TaskRepository) (*nats.Conn, error) {
+	nc, err := nats.Connect(cfg.NatsURL)
 	if err != nil {
-		log.Fatalf("Error initializing NATS subscriber: %v", err)
+		return nil, err
 	}
-	log.Println("NATS subscriber initialized successfully")
+
+	subject := "task.status.update"
+	_, err = nc.Subscribe(subject, func(m *nats.Msg) {
+		var update TaskStatusUpdate
+		err := json.Unmarshal(m.Data, &update)
+		if err != nil {
+			log.Printf("Error unmarshalling message: %v", err)
+			return
+		}
+
+		// Обновление статуса задачи в базе данных
+		err = repo.UpdateTaskStatus(update.TaskID, update.Status)
+		if err != nil {
+			log.Printf("Error updating task status in DB: %v", err)
+			return
+		}
+
+		log.Printf("Task ID %d status updated to %s", update.TaskID, update.Status)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Subscribed to NATS subject %s", subject)
+	return nc, nil
 }
 
 // SubscribeToTaskStatusUpdates connects to NATS and subscribes to a subject

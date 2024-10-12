@@ -16,15 +16,21 @@ type TaskService struct {
 }
 
 // StartGRPCServer starts gRPC server
-func StartGRPCServer(service *inbound.TaskServiceServer) {
+func StartGRPCServer(service *inbound.TaskServiceServer) *grpc.Server {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
 	s := grpc.NewServer()
 	pb.RegisterTaskServiceServer(s, TaskService{})
-	log.Printf("gRPC server is running on port :50051")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+
+	go func() {
+		log.Println("gRPC server is running on port :50051")
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	return s
 }
