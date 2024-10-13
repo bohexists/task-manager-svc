@@ -16,7 +16,7 @@ func NewTaskRepository(db *sql.DB) outbound.TaskRepository {
 	return &TaskRepository{DB: db}
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// CreateTask creates a new task
 func (r *TaskRepository) CreateTask(task *domain.Task) (int64, error) {
 	result, err := r.DB.Exec("INSERT INTO tasks (title, description) VALUES (?, ?)", task.Title, task.Description)
 	if err != nil {
@@ -29,31 +29,31 @@ func (r *TaskRepository) CreateTask(task *domain.Task) (int64, error) {
 	return taskID, nil
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// GetTask gets a task
 func (r *TaskRepository) GetTask(id int64) (*domain.Task, error) {
 	var task domain.Task
-	err := r.DB.QueryRow("SELECT id, title, description FROM tasks WHERE id = ?", id).Scan(&task.ID, &task.Title, &task.Description)
+	err := r.DB.QueryRow("SELECT id, title, description, status FROM tasks WHERE id = ?", id).Scan(&task.ID, &task.Title, &task.Status)
 	if err != nil {
 		return nil, err
 	}
 	return &task, nil
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// UpdateTask updates a task
 func (r *TaskRepository) UpdateTask(task *domain.Task) error {
 	_, err := r.DB.Exec("UPDATE tasks SET title = ?, description = ? WHERE id = ?", task.Title, task.Description, task.ID)
 	return err
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// DeleteTask deletes a task
 func (r *TaskRepository) DeleteTask(id int64) error {
 	_, err := r.DB.Exec("DELETE FROM tasks WHERE id = ?", id)
 	return err
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// ListTasks lists all tasks
 func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
-	rows, err := r.DB.Query("SELECT id, title, description FROM tasks")
+	rows, err := r.DB.Query("SELECT id, title, description, status FROM tasks")
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
 	var tasks []*domain.Task
 	for rows.Next() {
 		var task domain.Task
-		if err := rows.Scan(&task.ID, &task.Title, &task.Description); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status); err != nil {
 			return nil, err
 		}
 		tasks = append(tasks, &task)
@@ -70,7 +70,7 @@ func (r *TaskRepository) ListTasks() ([]*domain.Task, error) {
 	return tasks, nil
 }
 
-// TaskRepository interface now works with domain.Task instead of proto.Task
+// UpdateTaskStatus updates only the task's status
 func (r *TaskRepository) UpdateTaskStatus(id int64, status string) error {
 	_, err := r.DB.Exec("UPDATE tasks SET status = ? WHERE id = ?", status, id)
 	return err
