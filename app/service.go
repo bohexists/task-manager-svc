@@ -56,3 +56,17 @@ func (s *TaskService) DeleteTask(ctx context.Context, id int64) error {
 func (s *TaskService) ListTasks(ctx context.Context) ([]*domain.Task, error) {
 	return s.TaskRepo.ListTasks()
 }
+
+// UpdateTaskStatus updates only the task's status
+func (s *TaskService) UpdateTaskStatus(ctx context.Context, id int64, status string) error {
+	task, err := s.TaskRepo.GetTask(id)
+	if err != nil {
+		return err
+	}
+
+	if err := task.UpdateStatus(status); err != nil {
+		return err
+	}
+
+	return s.TaskRepo.UpdateTask(task)
+}

@@ -4,11 +4,19 @@ package proto;
 
 option go_package = "github.com/bohexists/task-manager-svc/api/proto;proto";
 
+
+enum TaskStatus {
+  NEW = 0;         // New
+  IN_PROGRESS = 1; // In progress
+  COMPLETED = 2;   // Completed
+}
+
 // This is an example of a message
 message Task {
   int64 id = 1;
   string title = 2;
   string description = 3;
+  TaskStatus status = 4;
 }
 
 // This is an example of a message

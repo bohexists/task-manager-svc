@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/bohexists/task-manager-svc/api/proto"
 	"github.com/bohexists/task-manager-svc/app"
+	"github.com/bohexists/task-manager-svc/domain"
 )
 
 // TaskServiceServer implements proto.TaskServiceServer
@@ -38,6 +39,7 @@ func (s *TaskServiceServer) GetTask(ctx context.Context, req *proto.TaskID) (*pr
 		Id:          task.ID,
 		Title:       task.Title,
 		Description: task.Description,
+		Status:      convertStatusToProto(task.Status),
 	}, nil
 }
 
@@ -71,10 +73,24 @@ func (s *TaskServiceServer) ListTasks(req *proto.Empty, stream proto.TaskService
 			Id:          task.ID,
 			Title:       task.Title,
 			Description: task.Description,
+			Status:      convertStatusToProto(task.Status),
 		}); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func convertStatusToProto(status string) proto.TaskStatus {
+	switch status {
+	case domain.StatusNew:
+		return proto.TaskStatus_NEW
+	case domain.StatusInProgress:
+		return proto.TaskStatus_IN_PROGRESS
+	case domain.StatusCompleted:
+		return proto.TaskStatus_COMPLETED
+	default:
+		return proto.TaskStatus_NEW // default fallback
+	}
 }
