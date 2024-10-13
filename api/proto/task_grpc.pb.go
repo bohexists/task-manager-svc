@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.2
-// source: api/proto/task.proto
+// source: task.proto
 
 package proto
 
@@ -29,6 +29,8 @@ const (
 // TaskServiceClient is the client API for TaskService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// This is an example of a service
 type TaskServiceClient interface {
 	CreateTask(ctx context.Context, in *Task, opts ...grpc.CallOption) (*TaskID, error)
 	GetTask(ctx context.Context, in *TaskID, opts ...grpc.CallOption) (*Task, error)
@@ -107,6 +109,8 @@ type TaskService_ListTasksClient = grpc.ServerStreamingClient[Task]
 // TaskServiceServer is the server API for TaskService service.
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility.
+//
+// This is an example of a service
 type TaskServiceServer interface {
 	CreateTask(context.Context, *Task) (*TaskID, error)
 	GetTask(context.Context, *TaskID) (*Task, error)
@@ -273,5 +277,5 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "api/proto/task.proto",
+	Metadata: "task.proto",
 }
