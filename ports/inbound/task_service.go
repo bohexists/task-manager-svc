@@ -3,8 +3,8 @@ package inbound
 import (
 	"context"
 	"github.com/bohexists/task-manager-svc/api/proto"
-	"github.com/bohexists/task-manager-svc/app"
 	"github.com/bohexists/task-manager-svc/domain"
+	"github.com/bohexists/task-manager-svc/internal/app"
 )
 
 // TaskServiceServer implements proto.TaskServiceServer

@@ -2,11 +2,10 @@ package nats
 
 import (
 	"encoding/json"
+	"github.com/bohexists/task-manager-svc/internal/app"
+	"github.com/bohexists/task-manager-svc/internal/config"
 	"github.com/nats-io/nats.go"
 	"log"
-
-	"github.com/bohexists/task-manager-svc/app"
-	"github.com/bohexists/task-manager-svc/config"
 )
 
 // TaskStatusUpdate starts with capital letter
