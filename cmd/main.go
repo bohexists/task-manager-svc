@@ -27,7 +27,7 @@ func main() {
 	grpcServerInstance := grpc.StartGRPCServer(inbound.NewTaskServiceServer(taskService))
 
 	// Start NATS subscriber and get its connection for shutdown
-	natsConn, err := nats.InitNATSSubscriber(cfg, taskRepo)
+	natsConn, err := nats.InitNATSSubscriber(cfg, taskService)
 	if err != nil {
 		log.Fatalf("Failed to connect to NATS: %v", err)
 	}

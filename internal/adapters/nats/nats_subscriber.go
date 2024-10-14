@@ -2,10 +2,10 @@ package nats
 
 import (
 	"encoding/json"
-	"github.com/bohexists/task-manager-svc/ports/outbound"
 	"github.com/nats-io/nats.go"
 	"log"
 
+	"github.com/bohexists/task-manager-svc/app"
 	"github.com/bohexists/task-manager-svc/config"
 )
 
@@ -16,7 +16,7 @@ type TaskStatusUpdate struct {
 }
 
 // InitNATSSubscriber initializes NATS subscriber
-func InitNATSSubscriber(cfg config.Config, repo outbound.TaskRepository) (*nats.Conn, error) {
+func InitNATSSubscriber(cfg config.Config, taskService *app.TaskService) (*nats.Conn, error) {
 	nc, err := nats.Connect(cfg.NatsURL)
 	if err != nil {
 		return nil, err
@@ -31,10 +31,10 @@ func InitNATSSubscriber(cfg config.Config, repo outbound.TaskRepository) (*nats.
 			return
 		}
 
-		// Обновление статуса задачи в базе данных
-		err = repo.UpdateTaskStatus(update.TaskID, update.Status)
+		// Update task status in the database
+		err = taskService.UpdateTaskStatus(nil, update.TaskID, update.Status)
 		if err != nil {
-			log.Printf("Error updating task status in DB: %v", err)
+			log.Printf("Error updating task status in TaskService: %v", err)
 			return
 		}
 
@@ -50,7 +50,7 @@ func InitNATSSubscriber(cfg config.Config, repo outbound.TaskRepository) (*nats.
 }
 
 // SubscribeToTaskStatusUpdates connects to NATS and subscribes to a subject
-func SubscribeToTaskStatusUpdates(cfg config.Config, repo outbound.TaskRepository) error {
+func SubscribeToTaskStatusUpdates(cfg config.Config, taskService *app.TaskService) error {
 	// Connect to NATS
 	nc, err := nats.Connect(cfg.NatsURL)
 	if err != nil {
@@ -69,9 +69,9 @@ func SubscribeToTaskStatusUpdates(cfg config.Config, repo outbound.TaskRepositor
 		}
 
 		// Update task status in the database
-		err = repo.UpdateTaskStatus(update.TaskID, update.Status)
+		err = taskService.UpdateTaskStatus(nil, update.TaskID, update.Status)
 		if err != nil {
-			log.Printf("Error updating task status in DB: %v", err)
+			log.Printf("Error updating task status in TaskService: %v", err)
 			return
 		}
 
