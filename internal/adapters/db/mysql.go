@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"github.com/bohexists/task-manager-svc/internal/config"
 	"log"
 
-	"github.com/bohexists/task-manager-svc/config"
 	_ "github.com/go-sql-driver/mysql"
 )
 
