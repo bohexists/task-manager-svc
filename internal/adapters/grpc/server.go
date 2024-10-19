@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"github.com/bohexists/task-manager-svc/internal/middleware"
 	"github.com/bohexists/task-manager-svc/ports/inbound"
 	"google.golang.org/grpc"
 	"log"
@@ -16,13 +17,17 @@ type TaskService struct {
 }
 
 // StartGRPCServer starts gRPC server
-func StartGRPCServer(service *inbound.TaskServiceServer) *grpc.Server {
+func StartGRPCServer(service *inbound.TaskServiceServer, loggingInterceptor *middleware.LoggingInterceptor) *grpc.Server {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(loggingInterceptor.UnaryInterceptor),
+		grpc.StreamInterceptor(loggingInterceptor.StreamInterceptor),
+	)
+
 	pb.RegisterTaskServiceServer(s, TaskService{})
 
 	go func() {

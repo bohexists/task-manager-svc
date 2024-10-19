@@ -1,30 +1,39 @@
 package nats
 
 import (
-	"github.com/nats-io/nats.go"
 	"log"
+
+	"github.com/nats-io/nats.go"
 )
 
-type NatsClient struct {
+type NatsPublisher struct {
 	conn *nats.Conn
 }
 
-// NewNatsClient создает нового клиента NATS.
-func NewNatsClient(natsURL string) (*NatsClient, error) {
+// NewNatsPublisher creates new NatsPublisher
+func NewNatsPublisher(natsURL string) (*NatsPublisher, error) {
 	conn, err := nats.Connect(natsURL)
 	if err != nil {
 		return nil, err
 	}
-	return &NatsClient{conn: conn}, nil
+	return &NatsPublisher{conn: conn}, nil
 }
 
-// Publish публикует сообщение в заданный NATS subject.
-func (n *NatsClient) Publish(subject string, data []byte) error {
+// Publish sends a message to NATS
+func (n *NatsPublisher) Publish(subject string, data []byte) error {
 	err := n.conn.Publish(subject, data)
 	if err != nil {
-		log.Printf("Ошибка при отправке сообщения в NATS: %v", err)
+		log.Printf("Error publishing message to NATS: %v", err)
 		return err
 	}
-	log.Printf("Сообщение успешно отправлено в NATS: %s", subject)
+	log.Printf("Message published to NATS successfully on subject: %s", subject)
 	return nil
+}
+
+// Close closes the NATS connection
+func (n *NatsPublisher) Close() {
+	if n.conn != nil {
+		n.conn.Close()
+		log.Println("NATS connection closed")
+	}
 }
