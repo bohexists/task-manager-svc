@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   task-manager-svc:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: task-manager
     ports:
       - "50051:50051"
@@ -16,6 +18,7 @@ services:
     depends_on:
       - task-db
       - nats
+      - log-aggregator-svc
 
   task-db:
     image: mysql:8.0
@@ -34,5 +37,31 @@ services:
     ports:
       - "4222:4222"
 
+  log-aggregator-svc:
+    build:
+      context: ../../log-aggregator-svc
+    container_name: log-aggregator
+    environment:
+      NATS_URL: nats://nats:4222
+      MONGO_URL: mongodb://log-mongo:27017
+      MONGO_DB: logdb
+    depends_on:
+      - log-mongo
+      - nats
+    ports:
+      - "8080:8080"
+
+  log-mongo:
+    image: mongo:latest
+    container_name: log-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - log_mongo_data:/data/db
+
 volumes:
   db_data:
+  log_mongo_data:
